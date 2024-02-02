@@ -1,4 +1,4 @@
-package com.example.demo.controllers;
+package com.example.demo.integration;
 
 import com.example.demo.domain.dto.SubscribeRequestDto;
 import com.example.demo.utils.SubscriptionUtils;
@@ -33,7 +33,7 @@ public class SubscriptionControllerIntegrationTests {
     public void testThatSubscribeAirportReturns201WhenValidRequest() throws Exception {
         SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
 
-        mockMvc.perform(post("/airport/subscribe")
+        mockMvc.perform(post("/airport/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(subDto)))
                 .andExpect(status().isCreated());
