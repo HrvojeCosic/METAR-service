@@ -1,33 +1,11 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Ignore Gradle project-specific cache directory
+.gradle
 
-### STS ###
-.apt_generated
+# Ignore Gradle build output directory
+build
 .classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
+/bin/
 .idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
+spring-boot-rest-api.iml
+spring-boot-rest-api.ipr
+spring-boot-rest-api.iws

@@ -1,0 +1,12 @@
+CREATE TABLE subscriptions(
+    id SERIAL PRIMARY KEY,
+    icao_code VARCHAR(4) NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE metar (
+    id SERIAL PRIMARY KEY,
+    icao_code VARCHAR(4) NOT NULL,
+    data TEXT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
