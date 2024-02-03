@@ -2,8 +2,11 @@ package com.example.demo.services.impl;
 
 import com.example.demo.domain.dto.AddMetarRequestDto;
 import com.example.demo.domain.entities.Metar;
+import com.example.demo.domain.entities.Subscription;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.MetarRepository;
 import com.example.demo.services.MetarService;
+import com.example.demo.services.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +17,7 @@ import java.time.LocalDateTime;
 public class MetarServiceImpl implements MetarService {
 
     private final MetarRepository metarRepository;
+    private final SubscriptionService subscriptionService;
 
     @Override
     public Long addMetar(String icaoCode, AddMetarRequestDto addMetarRequestDto) {
@@ -28,6 +32,9 @@ public class MetarServiceImpl implements MetarService {
 
     @Override
     public Metar getMetar(String icaoCode) {
-        return metarRepository.findFirstByIcaoCodeOrderByTimestampDesc(icaoCode);
+        Subscription subscription = subscriptionService.getSubscription(icaoCode);
+
+        return metarRepository.findFirstByIcaoCodeOrderByTimestampDesc(subscription.getIcaoCode())
+                .orElseThrow(() -> new ResourceNotFoundException("No METAR found for " + icaoCode));
     }
 }

@@ -50,6 +50,20 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
+    public Subscription getSubscription(String icaoCode) {
+        String errorMessage = "Subscription with given ICAO code does not exist";
+
+        Subscription subscription = subscriptionRepository.findByIcaoCode(icaoCode)
+                .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
+
+        if (!subscription.isActive()) {
+            throw new ResourceNotFoundException(errorMessage);
+        }
+
+        return subscription;
+    }
+
+    @Override
     public void unsubscribe(String icaoCode) {
         Optional<Subscription> existingSubscription = subscriptionRepository.findByIcaoCode(icaoCode);
 

@@ -10,4 +10,6 @@ public interface SubscriptionService {
     GetSubscriptionsResponseDto getSubscriptions();
 
     void unsubscribe(String icaoCode);
+
+    Subscription getSubscription(String icaoCode);
 }
