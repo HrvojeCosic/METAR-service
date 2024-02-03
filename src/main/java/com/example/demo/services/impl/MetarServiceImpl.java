@@ -25,4 +25,9 @@ public class MetarServiceImpl implements MetarService {
 
         return metarRepository.save(newMetar).getId();
     }
+
+    @Override
+    public Metar getMetar(String icaoCode) {
+        return metarRepository.findFirstByIcaoCodeOrderByTimestampDesc(icaoCode);
+    }
 }

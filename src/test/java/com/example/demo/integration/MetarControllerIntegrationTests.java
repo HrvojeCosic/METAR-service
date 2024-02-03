@@ -13,7 +13,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Objects;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -38,5 +42,34 @@ public class MetarControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(addMetarRequestDto)))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void testThatGetMetarReturnsLatestMetarWhenValidRequest() throws Exception {
+        AddMetarRequestDto addMetarRequestDto1 = MetarUtils.createValidAddMetarRequestDto();
+        AddMetarRequestDto addMetarRequestDto2 = MetarUtils.createValidAddMetarRequestDto();
+
+        addMetarRequestDto2.setData("METAR LDZA 031630Z 04003KT CAVOK 08/02 Q1023 NOSIG");
+        String icaoCode = "LDZA";
+
+        // Add first METAR
+        mockMvc.perform(post(String.format("/airport/%s/METAR", icaoCode))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(addMetarRequestDto1)))
+                .andExpect(status().isCreated());
+
+        // Add second METAR
+        mockMvc.perform(post(String.format("/airport/%s/METAR", icaoCode))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(addMetarRequestDto2)))
+                .andExpect(status().isCreated());
+
+        // Get latest METAR
+        assert !Objects.equals(addMetarRequestDto1.getData(), addMetarRequestDto2.getData());
+        mockMvc.perform(get(String.format("/airport/%s/METAR", icaoCode))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.data").value(addMetarRequestDto2.getData()));
     }
 }
