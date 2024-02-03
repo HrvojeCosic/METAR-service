@@ -49,7 +49,7 @@ public class MetarControllerIntegrationTests {
         AddMetarRequestDto addMetarRequestDto1 = MetarUtils.createValidAddMetarRequestDto();
         AddMetarRequestDto addMetarRequestDto2 = MetarUtils.createValidAddMetarRequestDto();
 
-        addMetarRequestDto2.setData("METAR LDZA 031630Z 04003KT CAVOK 08/02 Q1023 NOSIG");
+        addMetarRequestDto2.setData("031630Z 04003KT CAVOK 08/02 Q1023 NOSIG");
         String icaoCode = "LDZA";
 
         // Add first METAR

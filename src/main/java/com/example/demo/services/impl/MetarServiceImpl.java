@@ -7,7 +7,7 @@ import com.example.demo.services.MetarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ public class MetarServiceImpl implements MetarService {
         Metar newMetar = Metar.builder()
                 .icaoCode(icaoCode)
                 .data(addMetarRequestDto.getData())
-                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .timestamp(LocalDateTime.now())
                 .build();
 
         return metarRepository.save(newMetar).getId();

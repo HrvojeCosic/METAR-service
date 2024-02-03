@@ -6,7 +6,9 @@ public class MetarUtils {
 
     static public AddMetarRequestDto createValidAddMetarRequestDto() {
         return AddMetarRequestDto.builder()
-                .data("METAR LDZA 121200Z 0902MPS 090V150 2000 R04/P2000N R22/P2000N OVC050 0/M01 Q1020=")
+                .data("031800Z 23003KT CAVOK 06/01 Q1023 NOSIG")
+                .icaoCode("LDZA")
+                .timestamp("2024/02/03 18:00")
                 .build();
     }
 }

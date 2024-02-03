@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
@@ -36,5 +36,5 @@ public class Metar {
 
     @Setter
     @Column(nullable = false)
-    private Timestamp timestamp;
+    private LocalDateTime timestamp;
 }
