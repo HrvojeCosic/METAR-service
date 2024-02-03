@@ -1,7 +1,9 @@
 package com.example.demo.integration;
 
 import com.example.demo.domain.dto.AddMetarRequestDto;
+import com.example.demo.domain.dto.SubscribeRequestDto;
 import com.example.demo.utils.MetarUtils;
+import com.example.demo.utils.SubscriptionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,9 +50,16 @@ public class MetarControllerIntegrationTests {
     public void testThatGetMetarReturnsLatestMetarWhenValidRequest() throws Exception {
         AddMetarRequestDto addMetarRequestDto1 = MetarUtils.createValidAddMetarRequestDto();
         AddMetarRequestDto addMetarRequestDto2 = MetarUtils.createValidAddMetarRequestDto();
+        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
 
         addMetarRequestDto2.setData("031630Z 04003KT CAVOK 08/02 Q1023 NOSIG");
-        String icaoCode = "LDZA";
+        String icaoCode = subDto.getIcaoCode();
+
+        // Subscribe
+        mockMvc.perform(post("/subscriptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(subDto)))
+                .andExpect(status().isCreated());
 
         // Add first METAR
         mockMvc.perform(post(String.format("/airport/%s/METAR", icaoCode))

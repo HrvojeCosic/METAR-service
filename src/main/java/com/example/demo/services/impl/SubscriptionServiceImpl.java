@@ -31,10 +31,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             }
 
             return foundSub.getId();
-        } else {
-            subscription.setActive(true);
-            return subscriptionRepository.save(subscription).getId();
         }
+
+        subscription.setActive(true);
+        return subscriptionRepository.save(subscription).getId();
     }
 
     @Override
