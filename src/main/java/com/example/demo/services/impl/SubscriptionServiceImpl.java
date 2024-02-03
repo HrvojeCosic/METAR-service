@@ -20,8 +20,21 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public Long subscribe(Subscription subscription) {
-        subscription.setActive(true);
-        return subscriptionRepository.save(subscription).getId();
+        Optional<Subscription> existingSubscription = subscriptionRepository.findByIcaoCode(subscription.getIcaoCode());
+
+        if (existingSubscription.isPresent()) {
+            Subscription foundSub = existingSubscription.get();
+
+            if (!foundSub.isActive()) {
+                foundSub.setActive(true);
+                subscriptionRepository.save(foundSub);
+            }
+
+            return foundSub.getId();
+        } else {
+            subscription.setActive(true);
+            return subscriptionRepository.save(subscription).getId();
+        }
     }
 
     @Override

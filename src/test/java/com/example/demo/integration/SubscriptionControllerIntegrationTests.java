@@ -43,6 +43,47 @@ public class SubscriptionControllerIntegrationTests {
     }
 
     @Test
+    public void testThatSubscribeAirportDoesntCreateDuplicateSubscriptions() throws Exception {
+        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
+
+        // Subscribe airport
+        mockMvc.perform(post("/airport/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(subDto)))
+                .andExpect(status().isCreated());
+
+        // Subscribe airport again
+        mockMvc.perform(post("/airport/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(subDto)))
+                .andExpect(status().isCreated());
+
+        // Check if only one subscription is created
+        mockMvc.perform(get("/airport/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.subscriptions[0].icaoCode").value(subDto.getIcaoCode()))
+                .andExpect(jsonPath("$.subscriptions[1].icaoCode").doesNotExist());
+    }
+
+    @Test
+    public void testThatGetSubscriptionsReturns200AndSubscriptionsWhenValidRequest() throws Exception {
+        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
+
+        // Subscribe airport
+        mockMvc.perform(post("/airport/subscriptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(subDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$").isNumber());
+
+        // Get subscriptions
+        mockMvc.perform(get("/airport/subscriptions"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.subscriptions[0].icaoCode").value(subDto.getIcaoCode()));
+    }
+
+    @Test
     public void testThatUnsubscribeAirportDeactivatesSubscriptionAndReturns200WhenValidRequest() throws Exception {
         SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
 
