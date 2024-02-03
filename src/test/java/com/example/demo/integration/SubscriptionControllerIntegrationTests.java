@@ -36,7 +36,7 @@ public class SubscriptionControllerIntegrationTests {
     public void testThatSubscribeAirportReturns201WhenValidRequest() throws Exception {
         SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
 
-        mockMvc.perform(post("/airport/subscriptions")
+        mockMvc.perform(post("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(subDto)))
                 .andExpect(status().isCreated());
@@ -47,19 +47,19 @@ public class SubscriptionControllerIntegrationTests {
         SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
 
         // Subscribe airport
-        mockMvc.perform(post("/airport/subscriptions")
+        mockMvc.perform(post("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(subDto)))
                 .andExpect(status().isCreated());
 
         // Subscribe airport again
-        mockMvc.perform(post("/airport/subscriptions")
+        mockMvc.perform(post("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(subDto)))
                 .andExpect(status().isCreated());
 
         // Check if only one subscription is created
-        mockMvc.perform(get("/airport/subscriptions")
+        mockMvc.perform(get("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.subscriptions[0].icaoCode").value(subDto.getIcaoCode()))
@@ -71,14 +71,14 @@ public class SubscriptionControllerIntegrationTests {
         SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
 
         // Subscribe airport
-        mockMvc.perform(post("/airport/subscriptions")
+        mockMvc.perform(post("/subscriptions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(subDto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$").isNumber());
 
         // Get subscriptions
-        mockMvc.perform(get("/airport/subscriptions"))
+        mockMvc.perform(get("/subscriptions"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.subscriptions[0].icaoCode").value(subDto.getIcaoCode()));
     }
@@ -88,18 +88,18 @@ public class SubscriptionControllerIntegrationTests {
         SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
 
         // Subscribe airport
-        mockMvc.perform(post("/airport/subscriptions")
+        mockMvc.perform(post("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(subDto)))
                 .andExpect(status().isCreated());
 
         // Unsubscribe airport
-        mockMvc.perform(delete(String.format("/airport/subscriptions/%s", subDto.getIcaoCode()))
+        mockMvc.perform(delete(String.format("/subscriptions/%s", subDto.getIcaoCode()))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         // Check if subscription is deactivated
-        mockMvc.perform(get("/airport/subscriptions")
+        mockMvc.perform(get("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].icaoCode").doesNotExist());
@@ -107,7 +107,7 @@ public class SubscriptionControllerIntegrationTests {
 
     @Test
     public void testThatUnsubscribeAirportReturns404WhenAirportNonExistent() throws Exception {
-        mockMvc.perform(delete("/airport/subscriptions/INVALID_ICAO_CODE")
+        mockMvc.perform(delete("/subscriptions/INVALID_ICAO_CODE")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

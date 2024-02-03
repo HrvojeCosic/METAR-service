@@ -17,26 +17,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/airport")
+@RequestMapping("/subscriptions")
 @RequiredArgsConstructor
 public class SubscriptionController {
 
     private final ModelMapper subscriptionMapper;
     private final SubscriptionService subscriptionService;
 
-    @PostMapping("/subscriptions")
+    @PostMapping()
     public ResponseEntity<Long> subscribeAirport(@RequestBody SubscribeRequestDto subscriptionRequestDto) {
         Long id = subscriptionService.subscribe(subscriptionMapper.map(subscriptionRequestDto, Subscription.class));
 
         return new ResponseEntity<>(id, HttpStatus.CREATED);
     }
 
-    @GetMapping("/subscriptions")
+    @GetMapping()
     public ResponseEntity<GetSubscriptionsResponseDto> getSubscriptions() {
         return new ResponseEntity<>(subscriptionService.getSubscriptions(), HttpStatus.OK);
     }
 
-    @DeleteMapping("/subscriptions/{icaoCode}")
+    @DeleteMapping("/{icaoCode}")
     public ResponseEntity<Void> unsubscribeAirport(@PathVariable String icaoCode) {
         subscriptionService.unsubscribe(icaoCode);
         return ResponseEntity.ok().build();
