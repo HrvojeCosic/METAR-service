@@ -13,7 +13,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -38,4 +41,34 @@ public class SubscriptionControllerIntegrationTests {
                 .content(new ObjectMapper().writeValueAsString(subDto)))
                 .andExpect(status().isCreated());
     }
+
+    @Test
+    public void testThatUnsubscribeAirportDeactivatesSubscriptionAndReturns200WhenValidRequest() throws Exception {
+        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
+
+        // Subscribe airport
+        mockMvc.perform(post("/airport/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(subDto)))
+                .andExpect(status().isCreated());
+
+        // Unsubscribe airport
+        mockMvc.perform(delete(String.format("/airport/subscriptions/%s", subDto.getIcaoCode()))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        // Check if subscription is deactivated
+        mockMvc.perform(get("/airport/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].icaoCode").doesNotExist());
+    }
+
+    @Test
+    public void testThatUnsubscribeAirportReturns404WhenAirportNonExistent() throws Exception {
+        mockMvc.perform(delete("/airport/subscriptions/INVALID_ICAO_CODE")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
 }

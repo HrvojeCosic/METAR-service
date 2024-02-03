@@ -8,4 +8,6 @@ public interface SubscriptionService {
     Long subscribe(Subscription subscription);
 
     GetSubscriptionsResponseDto getSubscriptions();
+
+    void unsubscribe(String icaoCode);
 }
