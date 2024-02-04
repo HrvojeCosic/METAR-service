@@ -32,7 +32,7 @@ public class MetarServiceImpl implements MetarService {
 
     @Override
     public Metar getMetar(String icaoCode) {
-        Subscription subscription = subscriptionService.getSubscription(icaoCode);
+        Subscription subscription = subscriptionService.getActiveSubscription(icaoCode);
 
         return metarRepository.findFirstByIcaoCodeOrderByTimestampDesc(subscription.getIcaoCode())
                 .orElseThrow(() -> new ResourceNotFoundException("No METAR found for " + icaoCode));

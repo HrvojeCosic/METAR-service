@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class SubscriptionDto {
 
     private String icaoCode;
+
+    private boolean active;
 }

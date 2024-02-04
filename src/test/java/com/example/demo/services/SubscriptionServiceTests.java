@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
 
-import com.example.demo.domain.dto.GetSubscriptionsResponseDto;
 import com.example.demo.domain.entities.Subscription;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.SubscriptionRepository;
@@ -45,7 +44,7 @@ public class SubscriptionServiceTests {
         subscriptionService = new SubscriptionServiceImpl(subscriptionRepository);
 
         // Stubbing
-        BDDMockito.when(subscriptionRepository.findAllByActive(true))
+        BDDMockito.when(subscriptionRepository.findAll())
                 .thenReturn(List.of(validSubscription));
         BDDMockito.when(subscriptionRepository.findByIcaoCode(validSubscription.getIcaoCode()))
                 .thenReturn(java.util.Optional.of(validSubscription));
@@ -53,18 +52,18 @@ public class SubscriptionServiceTests {
 
     @Test
     public void testThatGetSubscriptionsReturnsAllSubscriptions() {
-        GetSubscriptionsResponseDto result = subscriptionService.getSubscriptions();
+        List<Subscription> result = subscriptionService.getSubscriptions();
 
-        Mockito.verify(subscriptionRepository, Mockito.times(1))
-                .findAllByActive(true);
+        Mockito.verify(subscriptionRepository, Mockito.times(1)).findAll();
 
-        assert !result.getSubscriptions().isEmpty();
-        assert result.getSubscriptions().get(0).getIcaoCode().equals(validSubscription.getIcaoCode());
+        assert !result.isEmpty();
+        assert result.getFirst().getId().equals(validSubscription.getId());
+        assert result.getFirst().getIcaoCode().equals(validSubscription.getIcaoCode());
     }
 
     @Test
     public void testThatGetSubscriptionReturnsSubscriptionWhenValidIcaoCode() {
-        Subscription result = subscriptionService.getSubscription(validSubscription.getIcaoCode());
+        Subscription result = subscriptionService.getActiveSubscription(validSubscription.getIcaoCode());
 
         Mockito.verify(subscriptionRepository, Mockito.times(1))
                 .findByIcaoCode(validSubscription.getIcaoCode());
@@ -78,6 +77,6 @@ public class SubscriptionServiceTests {
         BDDMockito.when(subscriptionRepository.findByIcaoCode(icaoCode))
                 .thenReturn(java.util.Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> subscriptionService.getSubscription(icaoCode));
+        assertThrows(ResourceNotFoundException.class, () -> subscriptionService.getActiveSubscription(icaoCode));
     }
 }

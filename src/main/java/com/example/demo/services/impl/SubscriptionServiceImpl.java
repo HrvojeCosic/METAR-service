@@ -1,7 +1,5 @@
 package com.example.demo.services.impl;
 
-import com.example.demo.domain.dto.GetSubscriptionsResponseDto;
-import com.example.demo.domain.dto.SubscriptionDto;
 import com.example.demo.domain.entities.Subscription;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.SubscriptionRepository;
@@ -38,19 +36,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public GetSubscriptionsResponseDto getSubscriptions() {
-        List<SubscriptionDto> subscriptions = subscriptionRepository
-                .findAllByActive(true).stream().map(subscription ->
-                        SubscriptionDto.builder()
-                                .icaoCode(subscription.getIcaoCode())
-                                .build()
-                ).toList();
-
-        return new GetSubscriptionsResponseDto(subscriptions);
+    public List<Subscription> getSubscriptions() {
+        return subscriptionRepository.findAll();
     }
 
     @Override
-    public Subscription getSubscription(String icaoCode) {
+    public Subscription getActiveSubscription(String icaoCode) {
         String errorMessage = "Subscription with given ICAO code does not exist";
 
         Subscription subscription = subscriptionRepository.findByIcaoCode(icaoCode)

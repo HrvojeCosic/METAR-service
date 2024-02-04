@@ -42,7 +42,7 @@ public class MetarServiceTests {
         metarService = new MetarServiceImpl(metarRepository, subscriptionService);
 
         // Stubbing
-        BDDMockito.when(subscriptionService.getSubscription(validAddMetarRequestDto.getIcaoCode()))
+        BDDMockito.when(subscriptionService.getActiveSubscription(validAddMetarRequestDto.getIcaoCode()))
                 .thenReturn(SubscriptionUtils.createValidSubscription());
     }
 

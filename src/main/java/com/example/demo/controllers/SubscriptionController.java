@@ -1,7 +1,7 @@
 package com.example.demo.controllers;
 
-import com.example.demo.domain.dto.GetSubscriptionsResponseDto;
 import com.example.demo.domain.dto.SubscribeRequestDto;
+import com.example.demo.domain.dto.SubscriptionDto;
 import com.example.demo.domain.dto.UpdateSubscriptionRequestDto;
 import com.example.demo.domain.entities.Subscription;
 import com.example.demo.services.SubscriptionService;
@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/subscriptions")
@@ -34,8 +36,13 @@ public class SubscriptionController {
     }
 
     @GetMapping()
-    public ResponseEntity<GetSubscriptionsResponseDto> getSubscriptions() {
-        return new ResponseEntity<>(subscriptionService.getSubscriptions(), HttpStatus.OK);
+    public ResponseEntity<List<SubscriptionDto>> getSubscriptions() {
+        List<SubscriptionDto> subs = subscriptionService.getSubscriptions()
+                .stream()
+                .map(subscription -> subscriptionMapper.map(subscription, SubscriptionDto.class))
+                .toList();
+
+        return new ResponseEntity<>(subs, HttpStatus.OK);
     }
 
     @DeleteMapping("/{icaoCode}")

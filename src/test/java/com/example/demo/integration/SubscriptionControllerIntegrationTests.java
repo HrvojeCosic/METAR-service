@@ -66,8 +66,8 @@ public class SubscriptionControllerIntegrationTests {
         mockMvc.perform(get("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.subscriptions[0].icaoCode").value(subDto.getIcaoCode()))
-                .andExpect(jsonPath("$.subscriptions[1].icaoCode").doesNotExist());
+                .andExpect(jsonPath("$[0].icaoCode").value(subDto.getIcaoCode()))
+                .andExpect(jsonPath("$[1].icaoCode").doesNotExist());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class SubscriptionControllerIntegrationTests {
         // Get subscriptions
         mockMvc.perform(get("/subscriptions"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.subscriptions[0].icaoCode").value(subDto.getIcaoCode()));
+                .andExpect(jsonPath("$[0].icaoCode").value(subDto.getIcaoCode()));
     }
 
     @Test
@@ -106,7 +106,7 @@ public class SubscriptionControllerIntegrationTests {
         mockMvc.perform(get("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].icaoCode").doesNotExist());
+                .andExpect(jsonPath("$[0].active").value(false));
     }
 
     @Test
@@ -140,7 +140,7 @@ public class SubscriptionControllerIntegrationTests {
         mockMvc.perform(get("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].icaoCode").doesNotExist());
+                .andExpect(jsonPath("$[0].active").value(false));
     }
 
     @ParameterizedTest

@@ -1,17 +1,18 @@
 package com.example.demo.services;
 
-import com.example.demo.domain.dto.GetSubscriptionsResponseDto;
 import com.example.demo.domain.entities.Subscription;
+
+import java.util.List;
 
 public interface SubscriptionService {
 
     Long subscribe(Subscription subscription);
 
-    GetSubscriptionsResponseDto getSubscriptions();
+    List<Subscription> getSubscriptions();
 
     void unsubscribe(String icaoCode);
 
-    Subscription getSubscription(String icaoCode);
+    Subscription getActiveSubscription(String icaoCode);
 
     void updateSubscription(String icaoCode, Subscription subscription);
 }
