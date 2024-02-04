@@ -52,7 +52,7 @@ public class MetarControllerIntegrationTests {
         AddMetarRequestDto addMetarRequestDto2 = MetarUtils.createValidAddMetarRequestDto();
         SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
 
-        addMetarRequestDto2.setData("2024/02/04 13:30 LDZA 041330Z 29003KT 220V350 CAVOK 14/03 Q1021 NOSIG");
+        addMetarRequestDto2.setData("LDZA 041330Z 29003KT 220V350 CAVOK 14/03 Q1021 NOSIG");
         String icaoCode = subDto.getIcaoCode();
 
         // Subscribe

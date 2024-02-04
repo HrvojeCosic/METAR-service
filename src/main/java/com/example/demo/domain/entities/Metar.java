@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @AllArgsConstructor
@@ -32,17 +32,17 @@ public class Metar {
 
     @Setter
     @Column(nullable = false)
-    private LocalDateTime timestamp;
+    private Date timestamp;
 
     @Setter
     @Column(nullable = false)
-    private String windStrength;
+    private Float windStrength;
 
     @Setter
     @Column(nullable = false)
-    private String temperature;
+    private Float temperature;
 
     @Setter
     @Column(nullable = false)
-    private String visibility;
+    private Float visibility;
 }

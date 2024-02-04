@@ -8,12 +8,9 @@ import com.example.demo.repositories.MetarRepository;
 import com.example.demo.services.MetarService;
 import com.example.demo.services.SubscriptionService;
 import lombok.RequiredArgsConstructor;
+import net.sf.jweather.metar.MetarParseException;
+import net.sf.jweather.metar.MetarParser;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +21,16 @@ public class MetarServiceImpl implements MetarService {
 
     @Override
     public Long addMetar(String icaoCode, AddMetarRequestDto addMetarRequestDto) {
-        Metar newMetar = parseMetar(addMetarRequestDto.getData());
+        net.sf.jweather.metar.Metar parsed = parseMetar(addMetarRequestDto.getData());
+
+        Metar newMetar = Metar.builder()
+                .icaoCode(icaoCode)
+                .temperature(parsed.getTemperatureInCelsius())
+                .visibility(parsed.getVisibility())
+                .windStrength(parsed.getWindSpeedInKnots())
+                .timestamp(parsed.getDate())
+                .build();
+
         return metarRepository.save(newMetar).getId();
     }
 
@@ -36,23 +42,20 @@ public class MetarServiceImpl implements MetarService {
                 .orElseThrow(() -> new ResourceNotFoundException("No METAR found for " + icaoCode));
     }
 
-    @Override
-    public Metar parseMetar(String metarString) {
-        String regex = "(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(metarString);
+    private net.sf.jweather.metar.Metar parseMetar(String metarData) {
+        try {
+            net.sf.jweather.metar.Metar parsed = MetarParser.parseReport(metarData);
 
-        if (!matcher.find()) {
-            throw new IllegalArgumentException("Invalid METAR format");
+            if (parsed.getTemperatureInCelsius() == null ||
+                    parsed.getVisibility() == null ||
+                    parsed.getWindSpeedInKnots() == null ||
+                    parsed.getDate() == null) {
+                throw new IllegalArgumentException("Invalid METAR data");
+            }
+
+            return parsed;
+        } catch (MetarParseException e) {
+            throw new IllegalArgumentException("Invalid METAR data");
         }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
-        return Metar.builder()
-                .timestamp(LocalDateTime.parse(matcher.group(1) + " " + matcher.group(2), formatter))
-                .icaoCode(matcher.group(3))
-                .windStrength(matcher.group(5))
-                .visibility(matcher.group(7))
-                .temperature(matcher.group(8))
-                .build();
     }
 }

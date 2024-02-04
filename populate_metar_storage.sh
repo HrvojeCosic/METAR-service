@@ -10,8 +10,9 @@ fetch_and_store_metar() {
     airport_code="$1"
     metar_endpoint=$(echo "${METAR_ENDPOINT_TEMPLATE}" | sed "s/{airport_code}/${airport_code}/g")
 
-    fetched=$(curl -s "${METAR_SERVICE_URL}/${airport_code}.TXT" | tr '\n' ' ')
-    response=$(curl -s -X POST -H "Content-Type: application/json" -d "{\"data\": \"${fetched}\"}" "${metar_endpoint}" 2>&1)
+    fetched=$(curl -s "${METAR_SERVICE_URL}/${airport_code}.TXT")
+    METAR_data=$(echo "${fetched}" | sed -n '2p')
+    response=$(curl -s -X POST -H "Content-Type: application/json" -d "{\"data\": \"${METAR_data}\"}" "${metar_endpoint}" 2>&1)
     echo "METAR storage response: ${response}"
 }
 

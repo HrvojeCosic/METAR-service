@@ -9,5 +9,4 @@ public interface MetarService {
 
     Metar getMetar(String icaoCode);
 
-    Metar parseMetar(String metarString);
 }
