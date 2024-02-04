@@ -42,13 +42,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public Subscription getActiveSubscription(String icaoCode) {
-        String errorMessage = "Subscription with given ICAO code does not exist";
-
-        Subscription subscription = subscriptionRepository.findByIcaoCode(icaoCode)
-                .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
+        Subscription subscription = findSubscription(icaoCode);
 
         if (!subscription.isActive()) {
-            throw new ResourceNotFoundException(errorMessage);
+            throw new ResourceNotFoundException("Subscription with given ICAO code is not active");
         }
 
         return subscription;
@@ -56,8 +53,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public void unsubscribe(String icaoCode) {
-        Subscription subscription = subscriptionRepository.findByIcaoCode(icaoCode)
-                .orElseThrow(() -> new ResourceNotFoundException("Subscription with given ICAO code does not exist"));
+        Subscription subscription = findSubscription(icaoCode);
 
         subscription.setActive(false);
         subscriptionRepository.save(subscription);
@@ -65,10 +61,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public void updateSubscription(String icaoCode, Subscription updatedSubscription) {
-        Subscription existingSubscription = subscriptionRepository.findByIcaoCode(icaoCode)
-                .orElseThrow(() -> new ResourceNotFoundException("Subscription with given ICAO code does not exist"));
+        Subscription subscription = findSubscription(icaoCode);
 
-        existingSubscription.setActive(updatedSubscription.isActive());
-        subscriptionRepository.save(existingSubscription);
+        subscription.setActive(updatedSubscription.isActive());
+        subscriptionRepository.save(subscription);
+    }
+
+    private Subscription findSubscription(String icaoCode) {
+        return subscriptionRepository.findByIcaoCode(icaoCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Subscription with given ICAO code does not exist"));
     }
 }
