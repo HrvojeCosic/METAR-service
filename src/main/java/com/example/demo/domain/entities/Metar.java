@@ -32,9 +32,17 @@ public class Metar {
 
     @Setter
     @Column(nullable = false)
-    private String data;
+    private LocalDateTime timestamp;
 
     @Setter
     @Column(nullable = false)
-    private LocalDateTime timestamp;
+    private String windStrength;
+
+    @Setter
+    @Column(nullable = false)
+    private String temperature;
+
+    @Setter
+    @Column(nullable = false)
+    private String visibility;
 }

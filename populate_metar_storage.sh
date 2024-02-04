@@ -10,19 +10,16 @@ fetch_and_store_metar() {
     airport_code="$1"
     metar_endpoint=$(echo "${METAR_ENDPOINT_TEMPLATE}" | sed "s/{airport_code}/${airport_code}/g")
 
-    fetched=$(curl -s "${METAR_SERVICE_URL}/${airport_code}.TXT")
-    datetime=$(echo $fetched | awk '{print $1, $2}')
-    data=$(echo $fetched | awk '{$1=$2=$3=""; print $0}' | awk '{$1=$1};1')
-
-    response=$(curl -s -X POST -H "Content-Type: application/json" -d "{\"icaoCode\": \"${icaoCode}\", \"data\": \"${data}\", \"timestamp\": \"${timestamp}\"}" "${metar_endpoint}" 2>&1)
+    fetched=$(curl -s "${METAR_SERVICE_URL}/${airport_code}.TXT" | tr '\n' ' ')
+    response=$(curl -s -X POST -H "Content-Type: application/json" -d "{\"data\": \"${fetched}\"}" "${metar_endpoint}" 2>&1)
     echo "METAR storage response: ${response}"
 }
 
 # Function to fetch all subscribed airports and call fetch_and_store_metar for each
 fetch_and_store_all_metar() {
-    subscribed_airports=$(curl -s "${SUBSCRIPTION_ENDPOINT}")
+    subscribed_airports=$(curl -s -X GET -H "Content-Type: application/json" -d '{}' "${SUBSCRIPTION_ENDPOINT}")
 
-    jq -r '.subscriptions[] | .icaoCode' <<< "${subscribed_airports}" | while read -r icaoCode; do
+    jq -r '.[] | .icaoCode' <<< "${subscribed_airports}" | while read -r icaoCode; do
         fetch_and_store_metar "${icaoCode}"
     done
 }

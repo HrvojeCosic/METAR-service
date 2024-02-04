@@ -24,7 +24,7 @@ public class MetarController {
 
     @PostMapping("/{icaoCode}/METAR")
     public ResponseEntity<Long> addMetar(@PathVariable String icaoCode,
-                                   @RequestBody AddMetarRequestDto addMetarRequestDto) {
+                                         @RequestBody AddMetarRequestDto addMetarRequestDto) {
         Long id = metarService.addMetar(icaoCode, addMetarRequestDto);
 
         return new ResponseEntity<>(id, HttpStatus.CREATED);

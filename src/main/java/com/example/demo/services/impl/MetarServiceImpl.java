@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -21,12 +24,7 @@ public class MetarServiceImpl implements MetarService {
 
     @Override
     public Long addMetar(String icaoCode, AddMetarRequestDto addMetarRequestDto) {
-        Metar newMetar = Metar.builder()
-                .icaoCode(icaoCode)
-                .data(addMetarRequestDto.getData())
-                .timestamp(LocalDateTime.now())
-                .build();
-
+        Metar newMetar = parseMetar(addMetarRequestDto.getData());
         return metarRepository.save(newMetar).getId();
     }
 
@@ -36,5 +34,25 @@ public class MetarServiceImpl implements MetarService {
 
         return metarRepository.findFirstByIcaoCodeOrderByTimestampDesc(subscription.getIcaoCode())
                 .orElseThrow(() -> new ResourceNotFoundException("No METAR found for " + icaoCode));
+    }
+
+    @Override
+    public Metar parseMetar(String metarString) {
+        String regex = "(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(metarString);
+
+        if (!matcher.find()) {
+            throw new IllegalArgumentException("Invalid METAR format");
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
+        return Metar.builder()
+                .timestamp(LocalDateTime.parse(matcher.group(1) + " " + matcher.group(2), formatter))
+                .icaoCode(matcher.group(3))
+                .windStrength(matcher.group(5))
+                .visibility(matcher.group(7))
+                .temperature(matcher.group(8))
+                .build();
     }
 }

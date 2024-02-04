@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class GetMetarResponseDto {
 
     private String icaoCode;
-    private String data;
     private String timestamp;
+    private String windStrength;
+    private String temperature;
+    private String visibility;
 }

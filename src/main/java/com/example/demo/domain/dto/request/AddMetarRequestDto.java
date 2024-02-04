@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,6 +12,4 @@ import java.time.LocalDateTime;
 public class AddMetarRequestDto {
 
     private String data;
-    private String icaoCode;
-    private LocalDateTime timestamp;
 }

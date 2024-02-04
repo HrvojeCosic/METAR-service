@@ -52,7 +52,7 @@ public class MetarControllerIntegrationTests {
         AddMetarRequestDto addMetarRequestDto2 = MetarUtils.createValidAddMetarRequestDto();
         SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
 
-        addMetarRequestDto2.setData("031630Z 04003KT CAVOK 08/02 Q1023 NOSIG");
+        addMetarRequestDto2.setData("2024/02/04 13:30 LDZA 041330Z 29003KT 220V350 CAVOK 14/03 Q1021 NOSIG");
         String icaoCode = subDto.getIcaoCode();
 
         // Subscribe
@@ -78,7 +78,27 @@ public class MetarControllerIntegrationTests {
         mockMvc.perform(get(String.format("/airport/%s/METAR", icaoCode))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data").value(addMetarRequestDto2.getData()));
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.timestamp").isNotEmpty())
+                .andExpect(jsonPath("$.icaoCode").exists())
+                .andExpect(jsonPath("$.icaoCode").isNotEmpty())
+                .andExpect(jsonPath("$.windStrength").exists())
+                .andExpect(jsonPath("$.windStrength").isNotEmpty())
+                .andExpect(jsonPath("$.temperature").exists())
+                .andExpect(jsonPath("$.temperature").isNotEmpty())
+                .andExpect(jsonPath("$.visibility").exists())
+                .andExpect(jsonPath("$.visibility").isNotEmpty());
+    }
+
+    @Test
+    public void testThatAddMetarReturns400WhenInvalidMetarDataProvided() throws Exception {
+        AddMetarRequestDto addMetarRequestDto = MetarUtils.createValidAddMetarRequestDto();
+        addMetarRequestDto.setData("Invalid METAR data");
+        String icaoCode = "LDZA";
+
+        mockMvc.perform(post(String.format("/airport/%s/METAR", icaoCode))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(addMetarRequestDto)))
+                .andExpect(status().isBadRequest());
     }
 }

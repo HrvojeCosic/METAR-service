@@ -8,4 +8,6 @@ public interface MetarService {
     Long addMetar(String icaoCode, AddMetarRequestDto addMetarRequestDto);
 
     Metar getMetar(String icaoCode);
+
+    Metar parseMetar(String metarString);
 }
