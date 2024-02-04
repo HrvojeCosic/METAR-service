@@ -1,8 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.domain.dto.SubscribeRequestDto;
 import com.example.demo.domain.dto.SubscriptionDto;
-import com.example.demo.domain.dto.UpdateSubscriptionRequestDto;
+import com.example.demo.domain.dto.request.SubscribeRequestDto;
+import com.example.demo.domain.dto.request.UpdateSubscriptionRequestDto;
 import com.example.demo.domain.entities.Subscription;
 import com.example.demo.services.SubscriptionService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,9 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @PostMapping()
-    public ResponseEntity<Long> subscribeAirport(@RequestBody SubscribeRequestDto subscriptionRequestDto) {
+    public ResponseEntity<Long> subscribeAirport(
+            @RequestBody SubscribeRequestDto subscriptionRequestDto
+    ) {
         Long id = subscriptionService.subscribe(subscriptionMapper.map(subscriptionRequestDto, Subscription.class));
 
         return new ResponseEntity<>(id, HttpStatus.CREATED);
@@ -52,8 +54,9 @@ public class SubscriptionController {
     }
 
     @PutMapping("/{icaoCode}")
-    public ResponseEntity<Void> updateSubscription(@PathVariable String icaoCode,
-                                                   @RequestBody UpdateSubscriptionRequestDto updateSubscriptionRequestDto) {
+    public ResponseEntity<Void> updateSubscription(
+            @PathVariable String icaoCode,
+            @RequestBody UpdateSubscriptionRequestDto updateSubscriptionRequestDto) {
         Subscription subscription = subscriptionMapper.map(updateSubscriptionRequestDto, Subscription.class);
 
         subscriptionService.updateSubscription(icaoCode, subscription);

@@ -1,6 +1,6 @@
 package com.example.demo.utils;
 
-import com.example.demo.domain.dto.SubscribeRequestDto;
+import com.example.demo.domain.dto.request.SubscribeRequestDto;
 import com.example.demo.domain.entities.Subscription;
 
 public class SubscriptionUtils {

@@ -1,7 +1,7 @@
 package com.example.demo.controllers;
 
-import com.example.demo.domain.dto.AddMetarRequestDto;
-import com.example.demo.domain.dto.GetMetarResponseDto;
+import com.example.demo.domain.dto.request.AddMetarRequestDto;
+import com.example.demo.domain.dto.response.GetMetarResponseDto;
 import com.example.demo.services.MetarService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

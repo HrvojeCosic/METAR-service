@@ -1,7 +1,7 @@
 package com.example.demo.integration;
 
-import com.example.demo.domain.dto.SubscribeRequestDto;
-import com.example.demo.domain.dto.UpdateSubscriptionRequestDto;
+import com.example.demo.domain.dto.request.SubscribeRequestDto;
+import com.example.demo.domain.dto.request.UpdateSubscriptionRequestDto;
 import com.example.demo.utils.SubscriptionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

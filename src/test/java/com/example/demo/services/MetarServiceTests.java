@@ -1,6 +1,6 @@
 package com.example.demo.services;
 
-import com.example.demo.domain.dto.AddMetarRequestDto;
+import com.example.demo.domain.dto.request.AddMetarRequestDto;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.MetarRepository;
 import com.example.demo.services.impl.MetarServiceImpl;
