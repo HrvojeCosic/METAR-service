@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.domain.dto.SubscriptionDto;
+import com.example.demo.domain.dto.request.GetSubscriptionRequestDto;
 import com.example.demo.domain.dto.request.SubscribeRequestDto;
+import com.example.demo.domain.dto.SubscriptionDto;
 import com.example.demo.domain.dto.request.UpdateSubscriptionRequestDto;
 import com.example.demo.domain.entities.Subscription;
 import com.example.demo.services.SubscriptionService;
@@ -38,8 +39,10 @@ public class SubscriptionController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<SubscriptionDto>> getSubscriptions() {
-        List<SubscriptionDto> subs = subscriptionService.getSubscriptions()
+    public ResponseEntity<List<SubscriptionDto>> getSubscriptions(
+            @RequestBody GetSubscriptionRequestDto getSubscriptionRequestDto
+    ) {
+        List<SubscriptionDto> subs = subscriptionService.getSubscriptions(getSubscriptionRequestDto)
                 .stream()
                 .map(subscription -> subscriptionMapper.map(subscription, SubscriptionDto.class))
                 .toList();

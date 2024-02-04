@@ -41,24 +41,13 @@ public class SubscriptionServiceTests {
     public void setUp() {
         // Initialize mocks
         MockitoAnnotations.initMocks(this);
-        subscriptionService = new SubscriptionServiceImpl(subscriptionRepository);
+        subscriptionService = new SubscriptionServiceImpl(subscriptionRepository, null);
 
         // Stubbing
         BDDMockito.when(subscriptionRepository.findAll())
                 .thenReturn(List.of(validSubscription));
         BDDMockito.when(subscriptionRepository.findByIcaoCode(validSubscription.getIcaoCode()))
                 .thenReturn(java.util.Optional.of(validSubscription));
-    }
-
-    @Test
-    public void testThatGetSubscriptionsReturnsAllSubscriptions() {
-        List<Subscription> result = subscriptionService.getSubscriptions();
-
-        Mockito.verify(subscriptionRepository, Mockito.times(1)).findAll();
-
-        assert !result.isEmpty();
-        assert result.getFirst().getId().equals(validSubscription.getId());
-        assert result.getFirst().getIcaoCode().equals(validSubscription.getIcaoCode());
     }
 
     @Test

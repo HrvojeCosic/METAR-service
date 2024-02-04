@@ -1,5 +1,6 @@
 package com.example.demo.integration;
 
+import com.example.demo.domain.dto.request.GetSubscriptionRequestDto;
 import com.example.demo.domain.dto.request.SubscribeRequestDto;
 import com.example.demo.domain.dto.request.UpdateSubscriptionRequestDto;
 import com.example.demo.utils.SubscriptionUtils;
@@ -31,6 +32,9 @@ public class SubscriptionControllerIntegrationTests {
 
     private final MockMvc mockMvc;
 
+    SubscribeRequestDto postSubReq = SubscriptionUtils.createValidSubscribeRequestDto();
+    GetSubscriptionRequestDto getSubReq = SubscriptionUtils.getEmptySubscriptionRequestDto();
+
     @Autowired
     public SubscriptionControllerIntegrationTests(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
@@ -38,73 +42,95 @@ public class SubscriptionControllerIntegrationTests {
 
     @Test
     public void testThatSubscribeAirportReturns201WhenValidRequest() throws Exception {
-        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
-
         mockMvc.perform(post("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(subDto)))
+                .content(new ObjectMapper().writeValueAsString(postSubReq)))
                 .andExpect(status().isCreated());
     }
 
     @Test
     public void testThatSubscribeAirportDoesntCreateDuplicateSubscriptions() throws Exception {
-        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
-
         // Subscribe airport
         mockMvc.perform(post("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(subDto)))
+                .content(new ObjectMapper().writeValueAsString(postSubReq)))
                 .andExpect(status().isCreated());
 
         // Subscribe airport again
         mockMvc.perform(post("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(subDto)))
+                .content(new ObjectMapper().writeValueAsString(postSubReq)))
                 .andExpect(status().isCreated());
 
         // Check if only one subscription is created
         mockMvc.perform(get("/subscriptions")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(getSubReq)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].icaoCode").value(subDto.getIcaoCode()))
+                .andExpect(jsonPath("$[0].icaoCode").value(postSubReq.getIcaoCode()))
                 .andExpect(jsonPath("$[1].icaoCode").doesNotExist());
     }
 
     @Test
     public void testThatGetSubscriptionsReturns200AndSubscriptionsWhenValidRequest() throws Exception {
-        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
-
         // Subscribe airport
         mockMvc.perform(post("/subscriptions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(subDto)))
+                        .content(new ObjectMapper().writeValueAsString(postSubReq)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$").isNumber());
 
         // Get subscriptions
-        mockMvc.perform(get("/subscriptions"))
+        mockMvc.perform(get("/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(getSubReq)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].icaoCode").value(subDto.getIcaoCode()));
+                .andExpect(jsonPath("$[0].icaoCode").value(postSubReq.getIcaoCode()));
     }
 
     @Test
-    public void testThatUnsubscribeAirportDeactivatesSubscriptionAndReturns200WhenValidRequest() throws Exception {
-        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
+    public void testThatGetSubscriptionsReturnsFilteredSubscriptionsWhenFilterProvided() throws Exception {
 
         // Subscribe airport
         mockMvc.perform(post("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(subDto)))
+                .content(new ObjectMapper().writeValueAsString(postSubReq)))
+                .andExpect(status().isCreated());
+
+        // Get subscriptions
+        getSubReq.setIcaoCode(postSubReq.getIcaoCode().substring(0, 2));
+        getSubReq.setActive(true);
+        mockMvc.perform(get("/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(getSubReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].icaoCode").value(postSubReq.getIcaoCode()));
+
+        getSubReq.setActive(false);
+        mockMvc.perform(get("/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(getSubReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    public void testThatUnsubscribeAirportDeactivatesSubscriptionAndReturns200WhenValidRequest() throws Exception {
+        // Subscribe airport
+        mockMvc.perform(post("/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(postSubReq)))
                 .andExpect(status().isCreated());
 
         // Unsubscribe airport
-        mockMvc.perform(delete(String.format("/subscriptions/%s", subDto.getIcaoCode()))
+        mockMvc.perform(delete(String.format("/subscriptions/%s", postSubReq.getIcaoCode()))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         // Check if subscription is deactivated
         mockMvc.perform(get("/subscriptions")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(getSubReq)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].active").value(false));
     }
@@ -118,7 +144,6 @@ public class SubscriptionControllerIntegrationTests {
 
     @Test
     public void testThatUpdateSubscriptionReturns200WhenValidRequest() throws Exception {
-        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
         UpdateSubscriptionRequestDto updateSubDto = UpdateSubscriptionRequestDto
                 .builder()
                 .active(false)
@@ -127,18 +152,19 @@ public class SubscriptionControllerIntegrationTests {
         // Subscribe airport
         mockMvc.perform(post("/subscriptions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(subDto)))
+                .content(new ObjectMapper().writeValueAsString(postSubReq)))
                 .andExpect(status().isCreated());
 
         // Update subscription (deactivate it)
-        mockMvc.perform(put(String.format("/subscriptions/%s", subDto.getIcaoCode()))
+        mockMvc.perform(put(String.format("/subscriptions/%s", postSubReq.getIcaoCode()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(updateSubDto)))
                 .andExpect(status().isOk());
 
         // Check if subscription is deactivated
         mockMvc.perform(get("/subscriptions")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(getSubReq)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].active").value(false));
     }

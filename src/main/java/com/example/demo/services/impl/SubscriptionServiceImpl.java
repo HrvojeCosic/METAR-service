@@ -1,12 +1,19 @@
 package com.example.demo.services.impl;
 
+import com.example.demo.domain.dto.request.GetSubscriptionRequestDto;
 import com.example.demo.domain.entities.Subscription;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.SubscriptionRepository;
 import com.example.demo.services.SubscriptionService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +22,7 @@ import java.util.Optional;
 public class SubscriptionServiceImpl implements SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
+    private final EntityManager entityManager;
 
     @Override
     public Long subscribe(Subscription subscription) {
@@ -36,8 +44,27 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public List<Subscription> getSubscriptions() {
-        return subscriptionRepository.findAll();
+    public List<Subscription> getSubscriptions(GetSubscriptionRequestDto getSubscriptionRequestDto) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Subscription> criteriaQuery = criteriaBuilder.createQuery(Subscription.class);
+        Root<Subscription> root = criteriaQuery.from(Subscription.class);
+
+        String icaoCode = getSubscriptionRequestDto.getIcaoCode();
+        Boolean active = getSubscriptionRequestDto.getActive();
+
+        List<Predicate> searchCriteria = new ArrayList<>();
+
+        /*
+         * Search criteria for query
+         */
+        if (icaoCode != null) {
+            searchCriteria.add(criteriaBuilder.like(root.get("icaoCode"), "%" + icaoCode + "%"));        }
+        if (active != null) {
+            searchCriteria.add(criteriaBuilder.equal(root.get("active"), active));
+        }
+
+        criteriaQuery.select(root).where(criteriaBuilder.and(searchCriteria.toArray(new Predicate[searchCriteria.size()])));
+        return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
     @Override
