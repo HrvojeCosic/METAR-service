@@ -65,14 +65,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public void unsubscribe(String icaoCode) {
-        Optional<Subscription> existingSubscription = subscriptionRepository.findByIcaoCode(icaoCode);
+        Subscription subscription = subscriptionRepository.findByIcaoCode(icaoCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Subscription with given ICAO code does not exist"));
 
-        if (existingSubscription.isEmpty()) {
-            throw new ResourceNotFoundException("Subscription with given ICAO code does not exist");
-        }
-
-        Subscription subscription = existingSubscription.get();
         subscription.setActive(false);
         subscriptionRepository.save(subscription);
+    }
+
+    @Override
+    public void updateSubscription(String icaoCode, Subscription updatedSubscription) {
+        Subscription existingSubscription = subscriptionRepository.findByIcaoCode(icaoCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Subscription with given ICAO code does not exist"));
+
+        existingSubscription.setActive(updatedSubscription.isActive());
+        subscriptionRepository.save(existingSubscription);
     }
 }

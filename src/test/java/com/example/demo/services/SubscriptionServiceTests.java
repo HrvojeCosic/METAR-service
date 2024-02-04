@@ -74,10 +74,10 @@ public class SubscriptionServiceTests {
 
     @ParameterizedTest
     @ValueSource(strings = {"INVALID", "", " ", "LDZA"})
-    public void testThatGetSubscriptionThrowsResourceNotFoundExceptionWhenBadIcaoCode() {
-        BDDMockito.when(subscriptionRepository.findByIcaoCode(validSubscription.getIcaoCode()))
+    public void testThatGetSubscriptionThrowsResourceNotFoundExceptionWhenBadIcaoCode(String icaoCode) {
+        BDDMockito.when(subscriptionRepository.findByIcaoCode(icaoCode))
                 .thenReturn(java.util.Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> subscriptionService.getSubscription(validSubscription.getIcaoCode()));
+        assertThrows(ResourceNotFoundException.class, () -> subscriptionService.getSubscription(icaoCode));
     }
 }

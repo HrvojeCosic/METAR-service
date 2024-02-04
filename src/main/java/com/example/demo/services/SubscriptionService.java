@@ -12,4 +12,6 @@ public interface SubscriptionService {
     void unsubscribe(String icaoCode);
 
     Subscription getSubscription(String icaoCode);
+
+    void updateSubscription(String icaoCode, Subscription subscription);
 }

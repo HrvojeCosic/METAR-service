@@ -1,10 +1,13 @@
 package com.example.demo.integration;
 
 import com.example.demo.domain.dto.SubscribeRequestDto;
+import com.example.demo.domain.dto.UpdateSubscriptionRequestDto;
 import com.example.demo.utils.SubscriptionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -112,4 +116,44 @@ public class SubscriptionControllerIntegrationTests {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void testThatUpdateSubscriptionReturns200WhenValidRequest() throws Exception {
+        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
+        UpdateSubscriptionRequestDto updateSubDto = UpdateSubscriptionRequestDto
+                .builder()
+                .active(false)
+                .build();
+
+        // Subscribe airport
+        mockMvc.perform(post("/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(subDto)))
+                .andExpect(status().isCreated());
+
+        // Update subscription (deactivate it)
+        mockMvc.perform(put(String.format("/subscriptions/%s", subDto.getIcaoCode()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateSubDto)))
+                .andExpect(status().isOk());
+
+        // Check if subscription is deactivated
+        mockMvc.perform(get("/subscriptions")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].icaoCode").doesNotExist());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"INVALID", "", " ", "LDZA"})
+    public void testThatUpdateSubscriptionReturns404WhenBadIcaoCodeProvided(String icaoCode) throws Exception {
+        UpdateSubscriptionRequestDto updateSubDto = UpdateSubscriptionRequestDto
+                .builder()
+                .active(false)
+                .build();
+
+        mockMvc.perform(put("/subscriptions/" + icaoCode)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateSubDto)))
+                .andExpect(status().isNotFound());
+    }
 }
