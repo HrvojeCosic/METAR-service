@@ -1,8 +1,13 @@
 package com.example.demo.services.MetarFieldStrategy;
 
 import com.example.demo.domain.entities.Metar;
+import lombok.RequiredArgsConstructor;
 
-public interface MetarFieldStrategy {
+@RequiredArgsConstructor
+public abstract class MetarFieldStrategy {
 
-    Object extract(Metar metar);
+    protected final Metar metar;
+
+    abstract String toNaturalLanguage();
+    abstract Object extract(Metar metar);
 }

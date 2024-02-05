@@ -45,7 +45,7 @@ public class MetarServiceImpl implements MetarService {
         Metar found = metarRepository.findFirstByIcaoCodeOrderByTimestampDesc(subscription.getIcaoCode())
                 .orElseThrow(() -> new ResourceNotFoundException("No METAR found for " + icaoCode));
 
-        MetarFieldContext metarFieldContext = new MetarFieldContext();
+        MetarFieldContext metarFieldContext = new MetarFieldContext(found);
         return metarFieldContext.createMetarMap(found, projections);
     }
 

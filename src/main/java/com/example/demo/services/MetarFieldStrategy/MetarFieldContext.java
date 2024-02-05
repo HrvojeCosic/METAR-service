@@ -9,12 +9,12 @@ import java.util.Map;
 public class MetarFieldContext {
     private final Map<String, MetarFieldStrategy> strategyMap;
 
-    public MetarFieldContext() {
+    public MetarFieldContext(Metar metar) {
         this.strategyMap = new HashMap<>();
-        strategyMap.put("temperature", new TemperatureStrategy());
-        strategyMap.put("visibility", new VisibilityStrategy());
-        strategyMap.put("windStrength", new WindStrengthStrategy());
-        strategyMap.put("timestamp", new TimestampStrategy());
+        strategyMap.put("temperature", new TemperatureStrategy(metar));
+        strategyMap.put("visibility", new VisibilityStrategy(metar));
+        strategyMap.put("windStrength", new WindStrengthStrategy(metar));
+        strategyMap.put("timestamp", new TimestampStrategy(metar));
     }
 
     public Map<String, Object> createMetarMap(Metar found, List<String> projections) {
@@ -30,6 +30,7 @@ public class MetarFieldContext {
                 throw new IllegalArgumentException("Invalid projection field: " + field);
             }
             metarMap.put(field, strategy.extract(found));
+            metarMap.put("explanation", metarMap.getOrDefault("explanation", "") + strategy.toNaturalLanguage());
         }
 
         return metarMap;
