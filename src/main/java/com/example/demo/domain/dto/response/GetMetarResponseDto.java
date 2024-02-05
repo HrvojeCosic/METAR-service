@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,8 +14,8 @@ import lombok.NoArgsConstructor;
 public class GetMetarResponseDto {
 
     private String icaoCode;
-    private String timestamp;
-    private String windStrength;
-    private String temperature;
-    private String visibility;
+    private Date timestamp;
+    private Float windStrength;
+    private Float temperature;
+    private Float visibility;
 }

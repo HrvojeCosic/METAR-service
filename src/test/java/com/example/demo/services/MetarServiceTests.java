@@ -18,6 +18,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -54,6 +56,8 @@ public class MetarServiceTests {
         BDDMockito.when(metarRepository.findFirstByIcaoCodeOrderByTimestampDesc(validSubscription.getIcaoCode()))
                 .thenReturn(java.util.Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> metarService.getMetar(validSubscription.getIcaoCode()));
+        assertThrows(ResourceNotFoundException.class, () ->
+                metarService.getMetar(validSubscription.getIcaoCode(), List.of())
+        );
     }
 }

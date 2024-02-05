@@ -80,14 +80,43 @@ public class MetarControllerIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.timestamp").isNotEmpty())
-                .andExpect(jsonPath("$.icaoCode").exists())
-                .andExpect(jsonPath("$.icaoCode").isNotEmpty())
                 .andExpect(jsonPath("$.windStrength").exists())
                 .andExpect(jsonPath("$.windStrength").isNotEmpty())
                 .andExpect(jsonPath("$.temperature").exists())
                 .andExpect(jsonPath("$.temperature").isNotEmpty())
                 .andExpect(jsonPath("$.visibility").exists())
                 .andExpect(jsonPath("$.visibility").isNotEmpty());
+    }
+
+    @Test
+    public void testThatGetMetarReturnsProjectedMetarWhenValidRequest() throws Exception {
+        AddMetarRequestDto addMetarRequestDto = MetarUtils.createValidAddMetarRequestDto();
+        SubscribeRequestDto subDto = SubscriptionUtils.createValidSubscribeRequestDto();
+
+        String icaoCode = subDto.getIcaoCode();
+
+        // Subscribe
+        mockMvc.perform(post("/subscriptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(subDto)))
+                .andExpect(status().isCreated());
+
+        // Add METAR
+        mockMvc.perform(post(String.format("/airport/%s/METAR", icaoCode))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(addMetarRequestDto)))
+                .andExpect(status().isCreated());
+
+        // Get projected METAR
+        mockMvc.perform(get(String.format("/airport/%s/METAR?projections=timestamp,windStrength", icaoCode))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.timestamp").isNotEmpty())
+                .andExpect(jsonPath("$.windStrength").exists())
+                .andExpect(jsonPath("$.windStrength").isNotEmpty())
+                .andExpect(jsonPath("$.temperature").doesNotExist())
+                .andExpect(jsonPath("$.visibility").doesNotExist());
     }
 
     @Test

@@ -1,12 +1,14 @@
 package com.example.demo.services;
 
 import com.example.demo.domain.dto.request.AddMetarRequestDto;
-import com.example.demo.domain.entities.Metar;
+
+import java.util.List;
+import java.util.Map;
 
 public interface MetarService {
 
     Long addMetar(String icaoCode, AddMetarRequestDto addMetarRequestDto);
 
-    Metar getMetar(String icaoCode);
+    Map<String, Object> getMetar(String icaoCode, List<String> projectionFields);
 
 }
